@@ -2,71 +2,85 @@
 
 [NTIRE 2021](https://data.vision.ee.ethz.ch/cvl/ntire21/) Learning the Super-Resolution Space Challenge.
 
-<!-- Our method ranked first and second in PI and LPIPS measures respectively. -->
+[Paper]()
 
-<!-- [[Paper]](http://openaccess.thecvf.com/content_CVPRW_2020/papers/w31/Jo_Investigating_Loss_Functions_for_Extreme_Super-Resolution_CVPRW_2020_paper.pdf)  -->
+- Challenge results of our SRFlow-DA model.
 
+|Upscale|LR-PSNR|LPIPS|Diversity|
+|------|---|---|---|
+|X4|50.70 (1st)|0.121 (3rd)|23.091 (4th)|
+|X8|50.86 (1st)|0.266 (3rd)|23.320 (4th)|
 
-<!-- ## Dependency
+## Dependency
 - Python 3.6
-- PyTorch 1.2
+- PyTorch 1.7
 - numpy
 - pillow
 - tqdm
+- Most of the code from the original SRFlow [repo](https://github.com/andreas128/SRFlow)
 
 
-## Test
+## First thing to do
 1. Clone this repo.
 ```
-git clone https://github.com/kingsj0405/ciplab-NTIRE-2020
+git clone https://github.com/yhjo09/SRFlow-DA
 ```
 
-2. Download pre-trained model and place it to `./model.pth`.
-- [NTIRE submission version](https://drive.google.com/file/d/10lu7rJ8JmiqGnq9k8N2iLei0aUAdhGcz/view?usp=sharing)
-- [Updated version](https://drive.google.com/file/d/1ugIYMCQK-Rw5jyI6CBB3e9ukMCceb7Lm/view?usp=sharing)
-
-3. Place low-resolution input images to `./input`.
-
-4. Run.
+2. Download datasets and baseline models.
 ```
-python test.py
+sh ./prepare.sh
 ```
-If your GPU memory lacks, please try with option `-n 3` or a larger number.
 
-5. Check your results in `./output`.
+## Test
+1. [Download](https://drive.google.com/file/d/14Prh70L28Qxl11-om6dqoA2VXAdzjOgX/view?usp=sharing) SRFlow-DA models and unzip it.
+```
+unzip ./experiments.zip
+```
+
+2. Run.
+```
+cd ./code
+python test.py ./confs/SRFlow-DA_DF2K_4X.yml        # SRFlow-DA 4X SR
+python test.py ./confs/SRFlow-DA_DF2K_8X.yml        # SRFlow-DA 8X SR
+python test.py ./confs/SRFlow-DA-R_DF2K_4X.yml      # SRFlow-DA-R 4X SR
+python test.py ./confs/SRFlow-DA-R_DF2K_8X.yml      # SRFlow-DA-R 8X SR
+python test.py ./confs/SRFlow-DA-S_DF2K_4X.yml      # SRFlow-DA-S 4X SR
+python test.py ./confs/SRFlow-DA-S_DF2K_8X.yml      # SRFlow-DA-S 8X SR
+python test.py ./confs/SRFlow-DA-D_DF2K_4X.yml      # SRFlow-DA-D 4X SR
+python test.py ./confs/SRFlow-DA-D_DF2K_8X.yml      # SRFlow-DA-D 8X SR
+```
+- If your GPU memory lacks, please try with prefix `CUDA_VISIBLE_DEVICES=-1`.
+
+3. Check your results in `./results`.
 
 
 ## Train
-1. Clone this repo.
-```
-git clone https://github.com/kingsj0405/ciplab-NTIRE-2020
-```
+1. You may have to modify some variables (e.g. directories) in a config file `./confs/*.yml`.
 
-2. Prepare training png images into `./train`.
-
-3. Prepare validation png images into `./val`.
-
-4. Open `train.py` and modify user parameters in L22.
-
-5. Run.
+2. Run.
 ```
-python train.py
+cd ./code
+python train.py -opt ./confs/SRFlow-DA_DF2K_4X.yml        # SRFlow-DA 4X SR
+python train.py -opt ./confs/SRFlow-DA_DF2K_8X.yml        # SRFlow-DA 8X SR
+python train.py -opt ./confs/SRFlow-DA-R_DF2K_4X.yml      # SRFlow-DA-R 4X SR
+python train.py -opt ./confs/SRFlow-DA-R_DF2K_8X.yml      # SRFlow-DA-R 8X SR
+python train.py -opt ./confs/SRFlow-DA-S_DF2K_4X.yml      # SRFlow-DA-S 4X SR
+python train.py -opt ./confs/SRFlow-DA-S_DF2K_8X.yml      # SRFlow-DA-S 8X SR
+python train.py -opt ./confs/SRFlow-DA-D_DF2K_4X.yml      # SRFlow-DA-D 4X SR
+python train.py -opt ./confs/SRFlow-DA-D_DF2K_8X.yml      # SRFlow-DA-D 8X SR
 ```
-If your GPU memory lacks, please try with lower batch size or patch size.
+- If your GPU memory lacks, please try with lower batch size or patch size.
+
+3. Training logs, model parameters, and validation result images will be stored in `./experiments`.
 
 
 ## BibTeX
 ```
-@InProceedings{jo2020investigating,
-   author = {Jo, Younghyun and Yang, Sejong and Joo Kim, Seon},
-   title = {Investigating Loss Functions for Extreme Super-Resolution},
+@InProceedings{jo2021srflowda,
+   author = {Jo, Younghyun and Yang, Sejong and Kim, Seon Joo},
+   title = {SRFlow-DA: Super-Resolution Using Normalizing Flow with Deep Convolutional Block},
    booktitle = {The IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR) Workshops},
    month = {June},
-   year = {2020}
+   year = {2021}
 }
 ```
-
-
-## External codes from
-- [LPIPS](https://github.com/richzhang/PerceptualSimilarity)
-- [RRDB (ESRGAN)](https://github.com/xinntao/ESRGAN) -->
