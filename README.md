@@ -12,11 +12,12 @@
 |X8|50.86 (1st)|0.266 (3rd)|23.320 (4th)|
 
 ## Dependency
-- Python 3.6
+- Python 3.6 (anaconda, miniconda or pyenv is recommended)
 - PyTorch 1.7
-- numpy
-- pillow
-- tqdm
+- Other dependencies in `requirements.txt`
+   ```
+   pip install -r requirements.txt
+   ```
 - Most of the code from the original SRFlow [repo](https://github.com/andreas128/SRFlow)
 
 
@@ -24,6 +25,7 @@
 1. Clone this repo.
 ```
 git clone https://github.com/yhjo09/SRFlow-DA
+cd SRFlow-DA
 ```
 
 2. Download datasets and baseline models.
