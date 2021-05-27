@@ -46,17 +46,31 @@ class CondAffineSeparatedAndCond(nn.Module):
         if self.channels_for_nn is None:
             self.channels_for_nn = self.in_channels // 2
 
-        self.fAffine1, self.fAffine2, self.fAffine3 = self.F(in_channels=self.channels_for_nn + self.in_channels_rrdb,
-                              out_channels=self.channels_for_co * 2,
-                              hidden_channels=self.hidden_channels,
-                              kernel_hidden=self.kernel_hidden,
-                              n_hidden_layers=self.n_hidden_layers)
-
-        self.fFeatures1, self.fFeatures2, self.fFeatures3 = self.F(in_channels=self.in_channels_rrdb,
-                                out_channels=self.in_channels * 2,
+        if self.model_name == "SRFlow-DA" or self.model_name == "SRFlow-DA-S":
+            self.fAffine = self.F(in_channels=self.channels_for_nn + self.in_channels_rrdb,
+                                out_channels=self.channels_for_co * 2,
                                 hidden_channels=self.hidden_channels,
                                 kernel_hidden=self.kernel_hidden,
                                 n_hidden_layers=self.n_hidden_layers)
+
+            self.fFeatures = self.F(in_channels=self.in_channels_rrdb,
+                                    out_channels=self.in_channels * 2,
+                                    hidden_channels=self.hidden_channels,
+                                    kernel_hidden=self.kernel_hidden,
+                                    n_hidden_layers=self.n_hidden_layers)
+
+        else:
+            self.fAffine1, self.fAffine2, self.fAffine3 = self.F(in_channels=self.channels_for_nn + self.in_channels_rrdb,
+                                out_channels=self.channels_for_co * 2,
+                                hidden_channels=self.hidden_channels,
+                                kernel_hidden=self.kernel_hidden,
+                                n_hidden_layers=self.n_hidden_layers)
+
+            self.fFeatures1, self.fFeatures2, self.fFeatures3 = self.F(in_channels=self.in_channels_rrdb,
+                                    out_channels=self.in_channels * 2,
+                                    hidden_channels=self.hidden_channels,
+                                    kernel_hidden=self.kernel_hidden,
+                                    n_hidden_layers=self.n_hidden_layers)
 
     def forward(self, input: torch.Tensor, logdet=None, reverse=False, ft=None):
         if not reverse:
@@ -64,14 +78,20 @@ class CondAffineSeparatedAndCond(nn.Module):
             assert z.shape[1] == self.in_channels, (z.shape[1], self.in_channels)
 
             # Feature Conditional
-            scaleFt, shiftFt = self.feature_extract(ft, self.fFeatures1, self.fFeatures2, self.fFeatures3)
+            if self.model_name == "SRFlow-DA" or self.model_name == "SRFlow-DA-S":
+                scaleFt, shiftFt = self.feature_extract(ft, self.fFeatures)
+            else:
+                scaleFt, shiftFt = self.feature_extract(ft, self.fFeatures1, self.fFeatures2, self.fFeatures3)
             z = z + shiftFt
             z = z * scaleFt
             logdet = logdet + self.get_logdet(scaleFt)
 
             # Self Conditional
             z1, z2 = self.split(z)
-            scale, shift = self.feature_extract_aff(z1, ft, self.fAffine1, self.fAffine2, self.fAffine3)
+            if self.model_name == "SRFlow-DA" or self.model_name == "SRFlow-DA-S":
+                scale, shift = self.feature_extract_aff(z1, ft, self.fAffine)
+            else:
+                scale, shift = self.feature_extract_aff(z1, ft, self.fAffine1, self.fAffine2, self.fAffine3)
             self.asserts(scale, shift, z1, z2)
             z2 = z2 + shift
             z2 = z2 * scale
@@ -84,7 +104,10 @@ class CondAffineSeparatedAndCond(nn.Module):
 
             # Self Conditional
             z1, z2 = self.split(z)
-            scale, shift = self.feature_extract_aff(z1, ft, self.fAffine1, self.fAffine2, self.fAffine3)
+            if self.model_name == "SRFlow-DA" or self.model_name == "SRFlow-DA-S":
+                scale, shift = self.feature_extract_aff(z1, ft, self.fAffine)
+            else:
+                scale, shift = self.feature_extract_aff(z1, ft, self.fAffine1, self.fAffine2, self.fAffine3)
             self.asserts(scale, shift, z1, z2)
             z2 = z2 / scale
             z2 = z2 - shift
@@ -92,7 +115,11 @@ class CondAffineSeparatedAndCond(nn.Module):
             logdet = logdet - self.get_logdet(scale)
 
             # Feature Conditional
-            scaleFt, shiftFt = self.feature_extract(ft, self.fFeatures1, self.fFeatures2, self.fFeatures3)
+            if self.model_name == "SRFlow-DA" or self.model_name == "SRFlow-DA-S":
+                scaleFt, shiftFt = self.feature_extract(ft, self.fFeatures)
+            else:
+                scaleFt, shiftFt = self.feature_extract(ft, self.fFeatures1, self.fFeatures2, self.fFeatures3)
+            
             z = z / scaleFt
             z = z - shiftFt
             logdet = logdet - self.get_logdet(scaleFt)
@@ -109,50 +136,43 @@ class CondAffineSeparatedAndCond(nn.Module):
     def get_logdet(self, scale):
         return thops.sum(torch.log(scale), dim=[1, 2, 3])
 
-    def feature_extract(self, z, f1, f2, f3):
-        h1 = f1(z)
+    def feature_extract(self, z, f1, f2=None, f3=None):
+        h = f1(z)
 
-        h_in = h1
-        for f in f2:
-            h2 = f(h_in)
-            if self.model_name == "SRFlow-DA-D":
-                h2 = h2 + h_in
-            h_in = h2
+        if f2 is not None and f3 is not None:
+            h_in = h
+            for f in f2:
+                h2 = f(h_in)
+                if self.model_name == "SRFlow-DA-D":
+                    h2 = h2 + h_in
+                h_in = h2
 
-        # if self.model_name == "SRFlow-DA-D":
-        #     for f in f2:
-        #         h2 = f(h1)
-        #         h2 = h2 + h1
-        #         h1 = h2
+            if self.model_name == "SRFlow-DA-R":
+                h2 = h2 + h
 
-        # else:
-        #     for f in f2:
-        #         h2 = f(h1)
-        #         h1 = h2
+            h = f3(h2)
 
-        if self.model_name == "SRFlow-DA-R":
-            h2 = h2 + h1
-
-        h = f3(h2)
         shift, scale = thops.split_feature(h, "cross")
         scale = (torch.sigmoid(scale + 2.) + self.affine_eps)
         return scale, shift
 
-    def feature_extract_aff(self, z1, ft, f1, f2, f3):
+    def feature_extract_aff(self, z1, ft, f1, f2=None, f3=None):
         z = torch.cat([z1, ft], dim=1)
-        h1 = f1(z)
+        h = f1(z)
 
-        h_in = h1
-        for f in f2:
-            h2 = f(h_in)
-            if self.model_name == "SRFlow-DA-D":
-                h2 = h2 + h_in
-            h_in = h2
-        
-        if self.model_name == "SRFlow-DA-R":
-            h2 = h2 + h1
+        if f2 is not None and f3 is not None:
+            h_in = h
+            for f in f2:
+                h2 = f(h_in)
+                if self.model_name == "SRFlow-DA-D":
+                    h2 = h2 + h_in
+                h_in = h2
+            
+            if self.model_name == "SRFlow-DA-R":
+                h2 = h2 + h
 
-        h = f3(h2)
+            h = f3(h2)
+
         shift, scale = thops.split_feature(h, "cross")
         scale = (torch.sigmoid(scale + 2.) + self.affine_eps)
         return scale, shift
@@ -164,26 +184,40 @@ class CondAffineSeparatedAndCond(nn.Module):
         return z1, z2
 
     def F(self, in_channels, out_channels, hidden_channels, kernel_hidden=1, n_hidden_layers=1):
-        layers1 = [Conv2d(in_channels, hidden_channels, do_actnorm=False), nn.ReLU(inplace=False)]
+        if self.model_name == "SRFlow-DA" or self.model_name == "SRFlow-DA-S":
+            layers = [Conv2d(in_channels, hidden_channels, do_actnorm=False), nn.ReLU(inplace=False)]
 
+            for _ in range(n_hidden_layers):
+                layers.append(Conv2d(hidden_channels, hidden_channels, do_actnorm=False, kernel_size=[kernel_hidden, kernel_hidden]))
+                layers.append(nn.ReLU(inplace=False))
 
-        if self.model_name == "SRFlow-DA-D":
-            layers2 = nn.ModuleList()
-            for _ in range(n_hidden_layers//2):
-                layers2.append( nn.Sequential(
-                    Conv2d(hidden_channels, hidden_channels, do_actnorm=False, kernel_size=[kernel_hidden, kernel_hidden]),
-                    nn.ReLU(inplace=False),
-                    Conv2d(hidden_channels, hidden_channels, do_actnorm=False, kernel_size=[kernel_hidden, kernel_hidden]),
-                    nn.ReLU(inplace=False),
-                ) )
+            layers.append(Conv2dZeros(hidden_channels, out_channels))
+
+            return nn.Sequential(*layers)
 
         else:
-            # layers2 = []
-            layers2 = nn.ModuleList()
-            for _ in range(n_hidden_layers):
-                layers2.append(Conv2d(hidden_channels, hidden_channels, do_actnorm=False, kernel_size=[kernel_hidden, kernel_hidden]))
-                layers2.append(nn.ReLU(inplace=False))
+            layers1 = [Conv2d(in_channels, hidden_channels, do_actnorm=False), nn.ReLU(inplace=False)]
 
-        layers3 = [Conv2dZeros(hidden_channels, out_channels)]
+            layers3 = [Conv2dZeros(hidden_channels, out_channels)]
 
-        return nn.Sequential(*layers1), layers2, nn.Sequential(*layers3)
+            if self.model_name == "SRFlow-DA-R":
+                layers2 = []
+                for _ in range(n_hidden_layers):
+                    layers2.append(Conv2d(hidden_channels, hidden_channels, do_actnorm=False, kernel_size=[kernel_hidden, kernel_hidden]))
+                    layers2.append(nn.ReLU(inplace=False))
+
+                layers3 = [Conv2dZeros(hidden_channels, out_channels)]
+
+                return nn.Sequential(*layers1), nn.Sequential(*layers2), nn.Sequential(*layers3)
+
+            else:
+                layers2 = nn.ModuleList()
+                for _ in range(n_hidden_layers//2):
+                    layers2.append( nn.Sequential(
+                        Conv2d(hidden_channels, hidden_channels, do_actnorm=False, kernel_size=[kernel_hidden, kernel_hidden]),
+                        nn.ReLU(inplace=False),
+                        Conv2d(hidden_channels, hidden_channels, do_actnorm=False, kernel_size=[kernel_hidden, kernel_hidden]),
+                        nn.ReLU(inplace=False),
+                    ) )
+
+                return nn.Sequential(*layers1), layers2, nn.Sequential(*layers3)
