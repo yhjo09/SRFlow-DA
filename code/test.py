@@ -95,10 +95,10 @@ def main():
     model, opt = load_model(conf_path)
 
     lr_dir = opt['dataroot_LR']
-    hr_dir = opt['dataroot_GT']
+#     hr_dir = opt['dataroot_GT']
 
     lr_paths = fiFindByWildcard(os.path.join(lr_dir, '*.png'))
-    hr_paths = fiFindByWildcard(os.path.join(hr_dir, '*.png'))
+#     hr_paths = fiFindByWildcard(os.path.join(hr_dir, '*.png'))
 
     # this_dir = os.path.dirname(os.path.realpath(__file__))
     # test_dir = os.path.join(this_dir, '..', 'results', conf)
@@ -127,10 +127,11 @@ def main():
     pbar = tqdm(total=len(lr_paths)*opt['n_sample'])
     print(f"Total {len(lr_paths)} input images, each generates {opt['n_sample']} output images.")
 
-    for lr_path, hr_path, idx_test in zip(lr_paths, hr_paths, range(len(lr_paths))):
+    for lr_path, idx_test in zip(lr_paths, range(len(lr_paths))):
+#     for lr_path, hr_path, idx_test in zip(lr_paths, hr_paths, range(len(lr_paths))):
         
         lr = imread(lr_path)
-        hr = imread(hr_path)
+#         hr = imread(hr_path)
 
         # Pad image to be % 2
         h, w, c = lr.shape
