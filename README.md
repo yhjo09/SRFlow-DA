@@ -14,11 +14,12 @@
 ## Dependency
 - Python 3.6 (anaconda, miniconda or pyenv is recommended)
 - PyTorch 1.7
-- Other dependencies in `requirements.txt`
+- Other dependencies in `requirements.txt`, 
    ```
    pip install -r requirements.txt
    ```
-- Most of the code from the original SRFlow [repo](https://github.com/andreas128/SRFlow)
+- Because the file (`requirements.txt`) contains the information of [abstract dependencies](https://caremad.io/posts/2013/07/setup-vs-requirement/), you can install other compatible versions referring to the file when you have a problem with the above command.
+- Most of the code from the original SRFlow [repository](https://github.com/andreas128/SRFlow).
 
 
 ## First thing to do
@@ -39,7 +40,7 @@ sh ./prepare.sh
 unzip ./experiments.zip
 ```
 
-2. Run.
+2. Run. 
 ```
 cd ./code
 python test.py ./confs/SRFlow-DA_DF2K_4X.yml        # SRFlow-DA 4X SR
@@ -51,7 +52,8 @@ python test.py ./confs/SRFlow-DA-S_DF2K_8X.yml      # SRFlow-DA-S 8X SR
 python test.py ./confs/SRFlow-DA-D_DF2K_4X.yml      # SRFlow-DA-D 4X SR
 python test.py ./confs/SRFlow-DA-D_DF2K_8X.yml      # SRFlow-DA-D 8X SR
 ```
-- If your GPU memory lacks, please try with prefix `CUDA_VISIBLE_DEVICES=-1`.
+- If your GPU memory lacks, please try with prefix `CUDA_VISIBLE_DEVICES=-1` (CPU only).
+- You may check `dataroot_LR` of the configuration file for the test.
 
 3. Check your results in `./results`.
 

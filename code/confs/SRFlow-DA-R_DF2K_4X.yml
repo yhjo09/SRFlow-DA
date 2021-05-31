@@ -46,7 +46,7 @@ datasets:
     n_max: 20
 
 #### Test Settings
-dataroot_GT: ../datasets/div2k-test-x4
+dataroot_GT: ../datasets/div2k-test-gt
 dataroot_LR: ../datasets/div2k-test-x4
 model_path: ../experiments/SRFlow-DA-R/models/200000_G_X4.pth
 heat: 0.9 # This is the standard deviation of the latent vectors
