@@ -18,8 +18,8 @@
    ```
    pip install -r requirements.txt
    ```
-- Because the file(`requirements.txt`) contains the information of [abstract dependencies](https://caremad.io/posts/2013/07/setup-vs-requirement/), you can install other compatible versions refering to `requirementst.txt` when you have a problem with above command
-- Most of the code from the original SRFlow [repo](https://github.com/andreas128/SRFlow)
+- Because the file (`requirements.txt`) contains the information of [abstract dependencies](https://caremad.io/posts/2013/07/setup-vs-requirement/), you can install other compatible versions referring to the file when you have a problem with the above command.
+- Most of the code from the original SRFlow [repository](https://github.com/andreas128/SRFlow).
 
 
 ## First thing to do
@@ -52,9 +52,8 @@ python test.py ./confs/SRFlow-DA-S_DF2K_8X.yml      # SRFlow-DA-S 8X SR
 python test.py ./confs/SRFlow-DA-D_DF2K_4X.yml      # SRFlow-DA-D 4X SR
 python test.py ./confs/SRFlow-DA-D_DF2K_8X.yml      # SRFlow-DA-D 8X SR
 ```
-- If your GPU memory lacks, please try with prefix `CUDA_VISIBLE_DEVICES=-1`(CPU only)
-- Check `dataroot_GT`, `dataroot_LR` of configuration for test
-- Check RRDB parameters in `pretrained_models` and FlowNet parameters in `experiments`
+- If your GPU memory lacks, please try with prefix `CUDA_VISIBLE_DEVICES=-1` (CPU only).
+- You may check `dataroot_LR` of the configuration file for the test.
 
 3. Check your results in `./results`.
 
