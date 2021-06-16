@@ -1,8 +1,8 @@
 ## SRFlow-DA: Super-Resolution Using Normalizing Flow with Deep Convolutional Block
 
-[NTIRE 2021](https://data.vision.ee.ethz.ch/cvl/ntire21/) Learning the Super-Resolution Space Challenge.
+[NTIRE 2021](https://data.vision.ee.ethz.ch/cvl/ntire21/) Learning the Super-Resolution Space [Challenge](https://github.com/andreas128/NTIRE21_Learning_SR_Space).
 
-[Paper]()
+[[Paper]](https://openaccess.thecvf.com/content/CVPR2021W/NTIRE/html/Jo_SRFlow-DA_Super-Resolution_Using_Normalizing_Flow_With_Deep_Convolutional_Block_CVPRW_2021_paper.html)
 
 - Challenge results of our SRFlow-DA model.
 
@@ -22,7 +22,7 @@
 - Most of the code from the original SRFlow [repository](https://github.com/andreas128/SRFlow).
 
 
-## First thing to do
+## First things to do
 1. Clone this repo.
 ```
 git clone https://github.com/yhjo09/SRFlow-DA
