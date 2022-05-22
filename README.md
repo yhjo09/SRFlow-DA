@@ -35,7 +35,7 @@ sh ./prepare.sh
 ```
 
 ## Test
-1. [Download](https://drive.google.com/file/d/14Prh70L28Qxl11-om6dqoA2VXAdzjOgX/view?usp=sharing) SRFlow-DA models and unzip it.
+1. [Download](https://yonsei-my.sharepoint.com/:u:/g/personal/yh_jo_o365_yonsei_ac_kr/EcJEWvhzNipLiPV8_Yfy-pYBa5OMdIaUd4LWeefr-7LyaA?e=PvlKwM) SRFlow-DA models and unzip it.
 ```
 unzip ./experiments.zip
 ```
